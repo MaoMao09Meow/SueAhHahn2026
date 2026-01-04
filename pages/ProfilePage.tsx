@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { User, Product, Review } from '../types';
 import { db } from '../store';
-import { Settings, UserPlus, MessageCircle, Star, Edit3, Grid, Star as StarIcon, Eye, EyeOff, Trash2, Camera, X, Plus, Image as ImageIcon, UserCheck, ShieldCheck, Fingerprint, AtSign } from 'lucide-react';
+import { Settings, UserPlus, MessageCircle, Star, Edit3, Grid, Star as StarIcon, Eye, EyeOff, Trash2, Camera, X, Plus, Image as ImageIcon, UserCheck, ShieldCheck, Fingerprint, AtSign, Lock, ShieldAlert } from 'lucide-react';
 import { formatThaiDate } from '../constants';
 
 interface Props {
@@ -24,6 +24,13 @@ const ProfilePage: React.FC<Props> = ({ currentUser }) => {
   const [editName, setEditName] = useState('');
   const [editBio, setEditBio] = useState('');
   const [editPic, setEditPic] = useState('');
+
+  // Password change fields
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [oldPasswordInput, setOldPasswordInput] = useState('');
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [confirmNewPasswordInput, setConfirmNewPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   // Add Product Form
   const [newName, setNewName] = useState('');
@@ -79,12 +86,38 @@ const ProfilePage: React.FC<Props> = ({ currentUser }) => {
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    db.updateUser(currentUser.uid, {
+    setPasswordError('');
+
+    const updates: Partial<User> = {
         displayName: editName,
         bio: editBio,
         profilePic: editPic
-    });
+    };
+
+    if (showPasswordFields) {
+        if (oldPasswordInput !== currentUser.password) {
+            setPasswordError('รหัสผ่านเดิมไม่ถูกต้อง');
+            return;
+        }
+        if (newPasswordInput.length < 4) {
+            setPasswordError('รหัสผ่านใหม่ต้องมีอย่างน้อย 4 ตัวอักษร');
+            return;
+        }
+        if (newPasswordInput !== confirmNewPasswordInput) {
+            setPasswordError('รหัสผ่านใหม่ไม่ตรงกัน');
+            return;
+        }
+        updates.password = newPasswordInput;
+    }
+
+    db.updateUser(currentUser.uid, updates);
     setIsEditing(false);
+    
+    // Reset password states
+    setShowPasswordFields(false);
+    setOldPasswordInput('');
+    setNewPasswordInput('');
+    setConfirmNewPasswordInput('');
   };
 
   const handleProductImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -377,15 +410,70 @@ const ProfilePage: React.FC<Props> = ({ currentUser }) => {
                       <p className="text-[11px] text-slate-500 mt-4 font-extrabold uppercase tracking-widest">แตะรูปเพื่อเปลี่ยนรูปโปรไฟล์</p>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-extrabold text-slate-700 ml-2">ชื่อที่ต้องการแสดง (Display Name)</label>
-                        <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 font-bold text-slate-900 outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all" placeholder="ชื่อที่ต้องการให้คนอื่นเห็น" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <label className="text-xs font-extrabold text-slate-700 ml-2">Bio (แนะนำตัวเอง)</label>
-                        <textarea value={editBio} onChange={e => setEditBio(e.target.value)} maxLength={500} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 font-bold text-slate-900 outline-none min-h-[140px] focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all" placeholder="เขียนคำอธิบายเกี่ยวกับตัวคุณหรือร้านค้า..." />
-                        <div className="text-right text-[10px] text-slate-400 px-2 font-extrabold">{editBio.length}/500</div>
+                    <div className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-extrabold text-slate-700 ml-2">ชื่อที่ต้องการแสดง (Display Name)</label>
+                            <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 font-bold text-slate-900 outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all" placeholder="ชื่อที่ต้องการให้คนอื่นเห็น" />
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-extrabold text-slate-700 ml-2">Bio (แนะนำตัวเอง)</label>
+                            <textarea value={editBio} onChange={e => setEditBio(e.target.value)} maxLength={500} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 font-bold text-slate-900 outline-none min-h-[120px] focus:ring-4 focus:ring-pink-100 focus:border-pink-500 transition-all" placeholder="เขียนคำอธิบายเกี่ยวกับตัวคุณหรือร้านค้า..." />
+                            <div className="text-right text-[10px] text-slate-400 px-2 font-extrabold">{editBio.length}/500</div>
+                        </div>
+
+                        {/* Password Section */}
+                        <div className="pt-2">
+                           <button 
+                             type="button" 
+                             onClick={() => setShowPasswordFields(!showPasswordFields)}
+                             className="flex items-center space-x-2 text-pink-600 font-extrabold text-xs ml-2 hover:underline"
+                           >
+                             <Lock size={14} />
+                             <span>{showPasswordFields ? 'ยกเลิกการเปลี่ยนรหัสผ่าน' : 'เปลี่ยนรหัสผ่าน'}</span>
+                           </button>
+
+                           {showPasswordFields && (
+                             <div className="mt-4 p-4 bg-slate-50 rounded-3xl border-2 border-slate-100 space-y-4 animate-in slide-in-from-top-2 duration-300">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-extrabold text-slate-500 ml-1">รหัสผ่านเดิม</label>
+                                    <input 
+                                        type="password" 
+                                        value={oldPasswordInput} 
+                                        onChange={e => setOldPasswordInput(e.target.value)}
+                                        placeholder="ป้อนรหัสผ่านปัจจุบัน" 
+                                        className="w-full bg-white border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-900 outline-none focus:border-pink-500 text-sm" 
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-extrabold text-slate-500 ml-1">รหัสผ่านใหม่</label>
+                                    <input 
+                                        type="password" 
+                                        value={newPasswordInput} 
+                                        onChange={e => setNewPasswordInput(e.target.value)}
+                                        placeholder="รหัสผ่านใหม่ (อย่างน้อย 4 ตัว)" 
+                                        className="w-full bg-white border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-900 outline-none focus:border-pink-500 text-sm" 
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-extrabold text-slate-500 ml-1">ยืนยันรหัสผ่านใหม่</label>
+                                    <input 
+                                        type="password" 
+                                        value={confirmNewPasswordInput} 
+                                        onChange={e => setConfirmNewPasswordInput(e.target.value)}
+                                        placeholder="ป้อนรหัสผ่านใหม่ให้ตรงกัน" 
+                                        className="w-full bg-white border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-900 outline-none focus:border-pink-500 text-sm" 
+                                    />
+                                </div>
+                                {passwordError && (
+                                    <div className="flex items-center space-x-1.5 text-red-600 text-[10px] font-extrabold bg-red-50 p-2 rounded-lg border border-red-100">
+                                        <ShieldAlert size={12} />
+                                        <span>{passwordError}</span>
+                                    </div>
+                                )}
+                             </div>
+                           )}
+                        </div>
                     </div>
 
                     <div className="flex flex-col space-y-3 pt-2">

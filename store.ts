@@ -39,6 +39,12 @@ class MockDB {
   getUsers() { return this.data.users; }
   getUser(uid: string) { return this.data.users.find(u => u.uid === uid); }
   addUser(user: User) { 
+    // If this is the first user ever, make them Admin
+    if (this.data.users.length === 0) {
+      user.isAdmin = true;
+    } else {
+      user.isAdmin = false;
+    }
     this.data.users.push(user); 
     this.save(); 
   }

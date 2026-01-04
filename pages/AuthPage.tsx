@@ -61,7 +61,8 @@ const AuthPage: React.FC<Props> = ({ onLogin }) => {
         friends: [],
         following: [],
         rating: 0,
-        reviewCount: 0
+        reviewCount: 0,
+        isAdmin: false // Store will override this if it's the very first user
       };
       db.addUser(newUser);
       onLogin(newUser);

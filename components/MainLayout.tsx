@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, Utensils, ClipboardList, MessageCircle, Bell, User, LogOut } from 'lucide-react';
+import { Home, Utensils, ClipboardList, MessageCircle, Bell, User, LogOut, ShieldCheck } from 'lucide-react';
 import { User as UserType } from '../types';
 import { db } from '../store';
 
@@ -36,9 +36,17 @@ const MainLayout: React.FC<Props> = ({ currentUser, onLogout }) => {
     <div className="flex flex-col h-screen max-w-md mx-auto bg-white shadow-xl relative overflow-hidden">
       {/* Header */}
       <header className="px-4 py-3 bg-white border-b-2 border-slate-100 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
-          Sue AhHahn
-        </h1>
+        <div className="flex items-center space-x-2">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
+            Sue AhHahn
+          </h1>
+          {currentUser.isAdmin && (
+             <Link to="/admin" className="bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded-full font-extrabold flex items-center space-x-1 animate-pulse">
+                <ShieldCheck size={10} />
+                <span>ADMIN</span>
+             </Link>
+          )}
+        </div>
         <div className="flex items-center space-x-3">
           <Link to="/notifications" className="p-2 text-slate-800 relative">
              <Bell size={22} strokeWidth={2.5} />

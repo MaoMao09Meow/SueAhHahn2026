@@ -9,6 +9,7 @@ import OrdersPage from './pages/OrdersPage';
 import ChatPage from './pages/ChatPage';
 import ProfilePage from './pages/ProfilePage';
 import NotificationsPage from './pages/NotificationsPage';
+import AdminPage from './pages/AdminPage';
 import MainLayout from './components/MainLayout';
 import { db } from './store';
 
@@ -25,8 +26,9 @@ const App: React.FC = () => {
     setLoading(false);
 
     const handleDBUpdate = () => {
-      if (uid) {
-        const user = db.getUser(uid);
+      const currentUid = localStorage.getItem('SUE_AHHAHN_UID');
+      if (currentUid) {
+        const user = db.getUser(currentUid);
         if (user) setCurrentUser({...user});
       }
     };
@@ -62,6 +64,7 @@ const App: React.FC = () => {
             <Route path="/chat" element={<ChatPage currentUser={currentUser} />} />
             <Route path="/profile/:uid" element={<ProfilePage currentUser={currentUser} />} />
             <Route path="/notifications" element={<NotificationsPage currentUser={currentUser} />} />
+            {currentUser.isAdmin && <Route path="/admin" element={<AdminPage currentUser={currentUser} />} />}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         )}

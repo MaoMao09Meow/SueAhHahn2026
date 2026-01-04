@@ -12,6 +12,7 @@ export interface User {
   following: string[]; // UIDs
   rating: number;
   reviewCount: number;
+  isAdmin?: boolean;
 }
 
 export interface Product {
