@@ -30,6 +30,7 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
   const [newStock, setNewStock] = useState('10');
   const [newDesc, setNewDesc] = useState('');
   const [newImage, setNewImage] = useState('');
+  const [newPickupLocation, setNewPickupLocation] = useState('');
 
   useEffect(() => {
     const list = db.getProducts().filter(p => !p.isHidden);
@@ -40,6 +41,7 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
       const targetProduct = list.find(p => p.id === location.state.openProductId);
       if (targetProduct && targetProduct.stock > 0) {
         setSelectedProduct(targetProduct);
+        setLocationStr(targetProduct.pickupLocation); // Pre-fill from seller's location
         setShowOrderModal(true);
       }
     }
@@ -118,10 +120,17 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
       price: Number(newPrice),
       image: newImage,
       stock: Number(newStock),
-      isHidden: false
+      isHidden: false,
+      pickupLocation: newPickupLocation
     });
     setShowAddModal(false);
-    setNewName(''); setNewPrice(''); setNewDesc(''); setNewImage('');
+    setNewName(''); setNewPrice(''); setNewDesc(''); setNewImage(''); setNewPickupLocation('');
+  };
+
+  const openOrderModal = (p: Product) => {
+    setSelectedProduct(p);
+    setLocationStr(p.pickupLocation); // Pre-fill the meetup location
+    setShowOrderModal(true);
   };
 
   const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -166,7 +175,10 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
                 <div className="flex-1 flex flex-col justify-between py-1">
                   <div>
                     <h4 className="font-extrabold text-slate-900 text-lg leading-tight">{p.name}</h4>
-                    <p className="text-sm text-slate-700 font-medium line-clamp-1 mt-1">{p.description}</p>
+                    <div className="flex items-center space-x-1.5 mt-1 text-slate-600">
+                      <MapPin size={12} strokeWidth={3} className="text-pink-600" />
+                      <p className="text-[11px] font-extrabold truncate">{p.pickupLocation || 'ไม่ได้ระบุจุดนัดพบ'}</p>
+                    </div>
                     <Link to={`/profile/${p.sellerUid}`} className="flex items-center space-x-1.5 mt-2 hover:bg-slate-50 w-fit p-1 -ml-1 rounded-lg transition-colors">
                       <img src={seller?.profilePic} className="w-5 h-5 rounded-full border border-slate-200" alt="" />
                       <span className="text-xs text-slate-900 font-extrabold">โดย {seller?.displayName}</span>
@@ -185,7 +197,7 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
                       <span className="bg-slate-200 text-slate-700 px-4 py-2 rounded-2xl text-xs font-extrabold">หมดแล้ว</span>
                     ) : (
                       <button 
-                        onClick={() => { setSelectedProduct(p); setShowOrderModal(true); }}
+                        onClick={() => openOrderModal(p)}
                         className="bg-blue-600 text-white p-3 rounded-2xl active:scale-90 transition-all shadow-lg shadow-blue-100"
                       >
                         <ShoppingCart size={22} strokeWidth={2.5} />
@@ -299,6 +311,14 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
                      <label className="text-xs font-extrabold text-slate-900 ml-2">สต็อก (ชิ้น)</label>
                      <input type="number" placeholder="สต็อก" value={newStock} onChange={e => setNewStock(e.target.value)} required className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 text-slate-900 font-bold focus:ring-4 focus:ring-pink-100 focus:border-pink-500 outline-none" />
                    </div>
+                 </div>
+
+                 <div className="space-y-1.5">
+                    <label className="text-xs font-extrabold text-slate-900 ml-2 flex items-center space-x-1">
+                      <MapPin size={12} strokeWidth={3} className="text-pink-600" />
+                      <span>จุดนัดพบ (เช่น ตึก A ชั้น 1)</span>
+                    </label>
+                    <input type="text" placeholder="ระบุสถานที่นัดส่งอาหาร" value={newPickupLocation} onChange={e => setNewPickupLocation(e.target.value)} required className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 text-slate-900 font-bold focus:ring-4 focus:ring-pink-100 focus:border-pink-500 outline-none transition-all" />
                  </div>
 
                  <textarea placeholder="บอกรายละเอียดเมนูนี้หน่อย (เช่น รสชาติ, วัตถุดิบพิเศษ)" value={newDesc} onChange={e => setNewDesc(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 text-slate-900 font-bold min-h-[120px] focus:ring-4 focus:ring-pink-100 focus:border-pink-500 outline-none transition-all" />

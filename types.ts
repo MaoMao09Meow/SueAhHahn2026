@@ -24,6 +24,7 @@ export interface Product {
   image: string;
   stock: number;
   isHidden: boolean;
+  pickupLocation: string; // Seller defined meetup point
 }
 
 export type OrderStatus = 'PENDING' | 'ACCEPTED' | 'PREPARING' | 'DELIVERING' | 'COMPLETED' | 'CANCELLED';

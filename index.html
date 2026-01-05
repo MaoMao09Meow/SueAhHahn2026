@@ -3,8 +3,20 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sue AhHahn - ตลาดนัดอาหารออนไลน์</title>
+    
+    <!-- PWA / App-Like Experience Meta Tags -->
+    <meta name="theme-color" content="#DB2777">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sue AhHahn">
+    
+    <!-- Icons for Add to Home Screen -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="https://fonts.gstatic.com/s/e/notoemoji/latest/1f35c/512.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,9 +26,16 @@
             font-family: 'Kanit', sans-serif;
             background-color: #f8fafc;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            overscroll-behavior-y: contain; /* Prevents pull-to-refresh on some browsers */
         }
         .safe-bottom {
             padding-bottom: env(safe-area-inset-bottom);
+        }
+        /* Custom scrollbar for better mobile look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
         }
     </style>
 <script type="importmap">
@@ -35,7 +54,6 @@
 </head>
 <body>
     <div id="root"></div>
-    <!-- Entry point for build tools -->
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>

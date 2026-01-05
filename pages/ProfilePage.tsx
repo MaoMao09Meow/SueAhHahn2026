@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { User, Product, Review } from '../types';
 import { db } from '../store';
-import { Settings, UserPlus, MessageCircle, Star, Edit3, Grid, Star as StarIcon, Eye, EyeOff, Trash2, Camera, X, Plus, Image as ImageIcon, UserCheck, ShieldCheck, Fingerprint, AtSign, Lock, ShieldAlert } from 'lucide-react';
+import { Settings, UserPlus, MessageCircle, Star, Edit3, Grid, Star as StarIcon, Eye, EyeOff, Trash2, Camera, X, Plus, Image as ImageIcon, UserCheck, ShieldCheck, Fingerprint, AtSign, Lock, ShieldAlert, MapPin } from 'lucide-react';
 import { formatThaiDate } from '../constants';
 
 interface Props {
@@ -38,6 +38,7 @@ const ProfilePage: React.FC<Props> = ({ currentUser }) => {
   const [newStock, setNewStock] = useState('10');
   const [newDesc, setNewDesc] = useState('');
   const [newImage, setNewImage] = useState('');
+  const [newPickupLocation, setNewPickupLocation] = useState('');
 
   useEffect(() => {
     if (!uid) return;
@@ -149,10 +150,11 @@ const ProfilePage: React.FC<Props> = ({ currentUser }) => {
       price: Number(newPrice),
       image: newImage,
       stock: Number(newStock),
-      isHidden: false
+      isHidden: false,
+      pickupLocation: newPickupLocation
     });
     setShowAddModal(false);
-    setNewName(''); setNewPrice(''); setNewDesc(''); setNewImage('');
+    setNewName(''); setNewPrice(''); setNewDesc(''); setNewImage(''); setNewPickupLocation('');
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -335,6 +337,10 @@ const ProfilePage: React.FC<Props> = ({ currentUser }) => {
                                                     <button onClick={() => deleteProduct(p.id)} className="text-red-600 p-1"><Trash2 size={18} strokeWidth={2.5} /></button>
                                                 </div>
                                             )}
+                                        </div>
+                                        <div className="flex items-center space-x-1.5 mt-1 text-slate-500">
+                                            <MapPin size={10} strokeWidth={3} className="text-pink-600" />
+                                            <p className="text-[10px] font-extrabold truncate">{p.pickupLocation}</p>
                                         </div>
                                         <p className="text-xs text-slate-600 line-clamp-1 mt-1 font-medium">{p.description}</p>
                                     </div>
@@ -521,6 +527,15 @@ const ProfilePage: React.FC<Props> = ({ currentUser }) => {
                    <input type="number" placeholder="ราคา" value={newPrice} onChange={e => setNewPrice(e.target.value)} required className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 text-slate-900 font-bold focus:ring-4 focus:ring-pink-100 focus:border-pink-500 outline-none" />
                    <input type="number" placeholder="จำนวน" value={newStock} onChange={e => setNewStock(e.target.value)} required className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 text-slate-900 font-bold focus:ring-4 focus:ring-pink-100 focus:border-pink-500 outline-none" />
                  </div>
+                 
+                 <div className="space-y-1.5">
+                    <label className="text-xs font-extrabold text-slate-900 ml-2 flex items-center space-x-1">
+                      <MapPin size={12} strokeWidth={3} className="text-pink-600" />
+                      <span>จุดนัดพบ (เช่น ตึก A ชั้น 1)</span>
+                    </label>
+                    <input type="text" placeholder="ระบุสถานที่นัดส่งอาหาร" value={newPickupLocation} onChange={e => setNewPickupLocation(e.target.value)} required className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 text-slate-900 font-bold focus:ring-4 focus:ring-pink-100 focus:border-pink-500 outline-none transition-all" />
+                 </div>
+
                  <textarea placeholder="คำอธิบายสั้นๆ..." value={newDesc} onChange={e => setNewDesc(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 px-5 text-slate-900 font-bold min-h-[100px] outline-none" />
                </div>
                

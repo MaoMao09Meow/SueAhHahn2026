@@ -1,0 +1,24 @@
+
+{
+  "name": "Sue AhHahn ซื้ออาหาร",
+  "short_name": "Sue AhHahn",
+  "description": "ตลาดนัดอาหารออนไลน์เพื่อคุณ",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#DB2777",
+  "icons": [
+    {
+      "src": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f35c/512.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://fonts.gstatic.com/s/e/notoemoji/latest/1f35c/512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
