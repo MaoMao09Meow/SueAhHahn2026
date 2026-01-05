@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { User, Product } from '../types';
 import { db } from '../store';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Users, Zap, Search, UserCheck } from 'lucide-react';
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 }
 
 const HomePage: React.FC<Props> = ({ currentUser }) => {
+  const navigate = useNavigate();
   const [userSearch, setUserSearch] = useState('');
   const products = db.getProducts().filter(p => !p.isHidden).slice(0, 4);
   const allUsers = db.getUsers();
@@ -20,6 +21,10 @@ const HomePage: React.FC<Props> = ({ currentUser }) => {
         u.displayName.toLowerCase().includes(userSearch.toLowerCase())
       ).slice(0, 5)
     : [];
+
+  const handleProductClick = (productId: string) => {
+    navigate('/menu', { state: { openProductId: productId } });
+  };
 
   return (
     <div className="p-6 space-y-8 animate-in slide-in-from-bottom-4 duration-500">
@@ -111,7 +116,11 @@ const HomePage: React.FC<Props> = ({ currentUser }) => {
             {products.map(product => {
               const seller = db.getUser(product.sellerUid);
               return (
-                <div key={product.id} className="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 flex flex-col group active:scale-95 transition-transform">
+                <button 
+                  key={product.id} 
+                  onClick={() => handleProductClick(product.id)}
+                  className="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 flex flex-col group active:scale-95 transition-transform text-left"
+                >
                   <div className="relative">
                     <img src={product.image} className="w-full h-36 object-cover" alt={product.name} />
                     <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
@@ -125,7 +134,7 @@ const HomePage: React.FC<Props> = ({ currentUser }) => {
                       <span className="text-xs text-slate-700 font-bold truncate">{seller?.displayName}</span>
                     </div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

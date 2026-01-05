@@ -3,13 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { User, Product } from '../types';
 import { db } from '../store';
 import { Plus, Search, ShoppingCart, User as UserIcon, X, MapPin, Clock, Star, Camera, Image as ImageIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface Props {
   currentUser: User;
 }
 
 const MenuPage: React.FC<Props> = ({ currentUser }) => {
+  const location = useLocation();
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -20,7 +21,7 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
   const [qty, setQty] = useState(1);
   const [note, setNote] = useState('');
   const [buyerName, setBuyerName] = useState(currentUser.displayName);
-  const [location, setLocation] = useState('');
+  const [locationStr, setLocationStr] = useState('');
   const [pickupTime, setPickupTime] = useState('');
 
   // Add Product Form
@@ -34,12 +35,21 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
     const list = db.getProducts().filter(p => !p.isHidden);
     setProducts(list);
 
+    // Check if we came from HomePage with a request to open a specific product
+    if (location.state && location.state.openProductId) {
+      const targetProduct = list.find(p => p.id === location.state.openProductId);
+      if (targetProduct && targetProduct.stock > 0) {
+        setSelectedProduct(targetProduct);
+        setShowOrderModal(true);
+      }
+    }
+
     const handleUpdate = () => {
       setProducts(db.getProducts().filter(p => !p.isHidden));
     };
     window.addEventListener('db-update', handleUpdate);
     return () => window.removeEventListener('db-update', handleUpdate);
-  }, []);
+  }, [location.state]);
 
   const handleProductImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,7 +81,7 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
       totalPrice: selectedProduct.price * qty,
       note,
       buyerName,
-      pickupLocation: location,
+      pickupLocation: locationStr,
       pickupTime: pickupTime || new Date().toISOString(),
       status: 'PENDING',
       createdAt: new Date().toISOString(),
@@ -223,7 +233,7 @@ const MenuPage: React.FC<Props> = ({ currentUser }) => {
                 </div>
                 <div className="relative">
                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-800" size={20} strokeWidth={2.5} />
-                  <input type="text" placeholder="สถานที่นัดรับ (เช่น ตึกA ชั้น1)" value={location} onChange={e => setLocation(e.target.value)} required className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-slate-900 font-bold placeholder:text-slate-500 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none" />
+                  <input type="text" placeholder="สถานที่นัดรับ (เช่น ตึกA ชั้น1)" value={locationStr} onChange={e => setLocationStr(e.target.value)} required className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-slate-900 font-bold placeholder:text-slate-500 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none" />
                 </div>
                 <div className="relative">
                   <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-800" size={20} strokeWidth={2.5} />
